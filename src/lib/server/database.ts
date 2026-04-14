@@ -8,6 +8,7 @@ db.run('PRAGMA journal_mode = WAL;');
 db.run(`CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   discord_id TEXT UNIQUE NOT NULL,
+  username TEXT UNIQUE NOT NULL,
   active INTEGER NOT NULL,
   created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
   updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
