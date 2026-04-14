@@ -17,3 +17,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   return await resolve(event);
 };
+
+process.on('exit', () => db.close());
+process.on('SIGINT', () => process.exit(0));
+process.on('SIGTERM', () => process.exit(0));
