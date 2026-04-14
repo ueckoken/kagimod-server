@@ -1,4 +1,9 @@
-import type { Handle } from '@sveltejs/kit';
+import db from '$lib/server/database';
+import type { ServerInit, Handle } from '@sveltejs/kit';
+
+export const init: ServerInit = async () => {
+  console.log(db);
+};
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const auth = event.request.headers.get('Authorization');
