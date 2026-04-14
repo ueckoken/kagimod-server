@@ -6,7 +6,7 @@ export const init: ServerInit = async () => {
 };
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const auth = event.request.headers.get('Authorization');
+  const auth = event.request.headers.get('Authorization');
   const token = auth?.replace('Bearer ', '');
 
   if (token) {
@@ -15,5 +15,5 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.user = payload;
   }
 
-	return await resolve(event);
+  return await resolve(event);
 };
