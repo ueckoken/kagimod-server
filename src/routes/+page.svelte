@@ -64,7 +64,6 @@
     <Table.Root>
       <Table.Header>
         <Table.Row>
-          <Table.Head class="w-4">id</Table.Head>
           <Table.Head>カード名</Table.Head>
           <Table.Head>idm</Table.Head>
           <Table.Head>登録日</Table.Head>
@@ -74,7 +73,6 @@
       <Table.Body>
         {#each data.cards as card}
           <Table.Row>
-            <Table.Cell class="font-medium">{card.id}</Table.Cell>
             <Table.Cell>{card.label}</Table.Cell>
             <Table.Cell>{card.idm_raw}</Table.Cell>
             <Table.Cell>{format(card.created_at, 'yyyy-MM-dd')}</Table.Cell>
