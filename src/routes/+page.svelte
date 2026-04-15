@@ -87,10 +87,10 @@
                     {/snippet}
                   </DropdownMenu.Trigger>
                   <DropdownMenu.Content class="mx-4 my-2 w-fit" align="start">
-                    <DropdownMenu.Item class="text-sm/3">
+                    <DropdownMenu.Item class="text-sm/3 p-3 cursor-pointer">
                       <PencilIcon />名前を変更
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item class="text-destructive text-sm/3">
+                    <DropdownMenu.Item variant="destructive" class="text-sm/3 p-3 cursor-pointer">
                       <Trash2Icon />削除
                     </DropdownMenu.Item>
                   </DropdownMenu.Content>
