@@ -1,8 +1,8 @@
-import db from '$lib/server/database';
+import { getDB } from '$lib/server/database';
 import type { ServerInit, Handle } from '@sveltejs/kit';
 
 export const init: ServerInit = async () => {
-  console.log(db);
+  getDB();
 };
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -18,6 +18,6 @@ export const handle: Handle = async ({ event, resolve }) => {
   return await resolve(event);
 };
 
-process.on('exit', () => db.close());
+process.on('exit', () => getDB().close());
 process.on('SIGINT', () => process.exit(0));
 process.on('SIGTERM', () => process.exit(0));
