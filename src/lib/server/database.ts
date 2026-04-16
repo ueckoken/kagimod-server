@@ -5,7 +5,7 @@ let db: Database | null = null;
 
 export function getDB() {
   if (!db) {
-    db = new Database(join(import.meta.dirname, '../../../db/kagimod.sqlite'), { create: true });
+    db = new Database(join(import.meta.dirname, `../../../db/kagimod${import.meta.env.DEV ? '-dev' : ''}.sqlite`), { create: true });
 
     db.run('PRAGMA journal_mode = WAL;');
 
