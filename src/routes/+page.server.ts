@@ -21,7 +21,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   if (user) {
     const db = getDB();
-    cards = db.query('SELECT * FROM cards WHERE user_id = $userId').all({ $userId: user.sub });
+    db.query('INSERT INTO users (discord_id, username, active) VALUES (?1, ?2, -1) ON CONFLICT(discord_id) DO UPDATE SET username = ?2').run(user.sub, user.preferred_username);
+    cards = db.query('SELECT * FROM cards WHERE user_id = ?').all(user.sub);
   }
 
   return { user, cards };
