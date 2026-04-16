@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { enhance } from '$app/forms';
   import type { PageProps } from './$types';
   import SunIcon from '@lucide/svelte/icons/sun';
   import MoonIcon from '@lucide/svelte/icons/moon';
@@ -8,19 +9,59 @@
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
   import { toggleMode } from 'mode-watcher';
   import * as Avatar from '$lib/components/ui/avatar';
-  import { Button } from '$lib/components/ui/button';
+  import { Button, buttonVariants } from '$lib/components/ui/button';
   import * as Table from '$lib/components/ui/table';
   import * as Popover from '$lib/components/ui/popover';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+  import * as Dialog from '$lib/components/ui/dialog';
+  import { Input } from '$lib/components/ui/input';
+  import { Label } from '$lib/components/ui/label';
   import { format } from 'date-fns';
 
   let { data }: PageProps = $props();
+  let newDialog = $state({
+    open: false,
+    label: '',
+    idm: '',
+  });
+  let renameDialog = $state({
+    open: false,
+    id: 0,
+    label: '',
+    idm: '',
+    oldLabel: '',
+  });
+  let deleteDialog = $state({
+    open: false,
+    id: 0,
+    label: '',
+    idm: '',
+  });
+
+  function openNewDialog() {
+    newDialog.label = '';
+    newDialog.idm = '';
+    newDialog.open = true;
+  }
+  function openRenameDialog(id: number, label: string, idm: string) {
+    renameDialog.id = id;
+    renameDialog.label = label;
+    renameDialog.idm = idm;
+    renameDialog.oldLabel = label;
+    renameDialog.open = true;
+  }
+  function openDeleteDialog(id: number, label: string, idm: string) {
+    deleteDialog.id = id;
+    deleteDialog.label = label;
+    deleteDialog.idm = idm;
+    deleteDialog.open = true;
+  }
 </script>
 
 <div class="p-4 flex items-center justify-between">
   <div class="flex items-center gap-3 mx-2">
     <h1 class="text-xl font-bold">Kagimod</h1>
-    <Button onclick={toggleMode} variant="outline" size="icon" class="cursor-pointer">
+    <Button onclick={toggleMode} variant="outline" size="icon">
       <SunIcon
         class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 !transition-all dark:scale-0 dark:-rotate-90"
       />
@@ -32,7 +73,7 @@
   </div>
   <div class="flex items-center gap-3">
     <Popover.Root>
-      <Popover.Trigger class="sm:pointer-events-none cursor-pointer">
+      <Popover.Trigger class="sm:pointer-events-none">
         <Avatar.Root class="rounded-full h-10 w-10">
           <Avatar.Image src={data.user?.picture} alt={`@${data.user?.preferred_username}`} />
           <Avatar.Fallback>{data.user?.preferred_username.slice(0, 1).toUpperCase()}</Avatar.Fallback>
@@ -58,14 +99,14 @@
       <h2 class="font-bold">ICカード一覧</h2>
       <p>{data.cards.length}件</p>
     </div>
-    <Button class="flex items-center cursor-pointer"><PlusIcon />カードを追加</Button>
+    <Button onclick={openNewDialog} class="flex items-center"><PlusIcon />カードを追加</Button>
   </div>
   {#if data.cards.length}
     <Table.Root>
       <Table.Header>
         <Table.Row>
           <Table.Head>カード名</Table.Head>
-          <Table.Head>idm</Table.Head>
+          <Table.Head>IDm</Table.Head>
           <Table.Head>登録日</Table.Head>
           <Table.Head class="w-0"></Table.Head>
         </Table.Row>
@@ -81,20 +122,28 @@
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
                     {#snippet child({ props })}
-                      <Button {...props} variant="secondary" class="cursor-pointer sm:hidden" aria-label="操作"><EllipsisIcon /></Button>
+                      <Button {...props} variant="secondary" class="sm:hidden" aria-label="操作"><EllipsisIcon /></Button>
                     {/snippet}
                   </DropdownMenu.Trigger>
                   <DropdownMenu.Content class="mx-4 my-2 w-fit" align="start">
-                    <DropdownMenu.Item class="text-sm/3 p-3 cursor-pointer">
+                    <DropdownMenu.Item onSelect={() => openRenameDialog(card.id, card.label, card.idm_raw)} class="text-sm/3 p-3">
                       <PencilIcon />名前を変更
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item variant="destructive" class="text-sm/3 p-3 cursor-pointer">
+                    <DropdownMenu.Item onSelect={() => openDeleteDialog(card.id, card.label, card.idm_raw)} variant="destructive" class="text-sm/3 p-3">
                       <Trash2Icon />削除
                     </DropdownMenu.Item>
                   </DropdownMenu.Content>
                 </DropdownMenu.Root>
-                <Button variant="secondary" class="cursor-pointer hidden sm:inline" aria-label="名前を変更"><PencilIcon /></Button>
-                <Button variant="destructive" class="cursor-pointer hidden sm:inline" aria-label="削除"><Trash2Icon /></Button>
+                <Button
+                  variant="secondary"
+                  onclick={() => openRenameDialog(card.id, card.label, card.idm_raw)}
+                  class="hidden sm:inline"
+                  aria-label="名前を変更"><PencilIcon /></Button>
+                <Button
+                  variant="destructive"
+                  onclick={() => openDeleteDialog(card.id, card.label, card.idm_raw)}
+                  class="hidden sm:inline"
+                  aria-label="削除"><Trash2Icon /></Button>
               </div>
             </Table.Cell>
           </Table.Row>
@@ -107,3 +156,132 @@
     </div>
   {/if}
 </main>
+
+<Dialog.Root bind:open={newDialog.open}>
+  <Dialog.Content onOpenAutoFocus={(e) => e.preventDefault()}>
+   <Dialog.Header>
+      <Dialog.Title class="text-xl font-bold">カードを追加</Dialog.Title>
+      <Dialog.Description>
+        交通系ICカード(FeliCa)のIDmを登録します
+      </Dialog.Description>
+    </Dialog.Header>
+    <form
+      id="newForm" 
+      action="?/new" 
+      method="POST" 
+      use:enhance={({ formElement, formData, action, cancel }) => {
+        return async ({ result, update }) => {
+          if (result.type == 'success') {
+            newDialog.open = false;
+            update();
+          } else if (result.type == 'failure') {
+            console.error(result.data);
+            alert('エラーが発生しました:\n' + result.data);
+          }
+        };
+      }}
+      class="grid flex-1 gap-4">
+      <div>
+        <Label for="newLabel" class="mb-2">カードの名前</Label>
+        <Input
+          id="newLabel"
+          name="label"
+          placeholder="e.g. スマホのSuica"
+          bind:value={newDialog.label}
+        />
+      </div>
+      <div>
+        <Label for="newIdm" class="mb-2">IDm (16進数 16文字)</Label>
+        <Input
+          id="newIdm"
+          name="idm_raw"
+          placeholder="0123456789abcdef"
+          bind:value={newDialog.idm}
+        />
+      </div>
+    </form>
+    <Dialog.Footer class="sm:justify-end">
+      <Dialog.Close class={buttonVariants({ variant: "secondary" })}
+        >閉じる</Dialog.Close
+      >
+      <Button type="submit" form="newForm" disabled={!newDialog.label || !RegExp(/^[a-fA-F0-9]{16}$/).test(newDialog.idm)}>追加</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root bind:open={renameDialog.open}>
+  <Dialog.Content onOpenAutoFocus={(e) => e.preventDefault()}>
+   <Dialog.Header>
+      <Dialog.Title class="text-xl font-bold">カード名を変更</Dialog.Title>
+      <Dialog.Description>
+        IDm: {renameDialog.idm}
+      </Dialog.Description>
+    </Dialog.Header>
+    <form
+      id="renameForm"
+      action="?/rename" 
+      method="POST" 
+      use:enhance={({ formElement, formData, action, cancel }) => {
+        return async ({ result, update }) => {
+          if (result.type == 'success') {
+            renameDialog.open = false;
+            update();
+          } else if (result.type == 'failure') {
+            console.error(result.data);
+            alert('エラーが発生しました:\n' + result.data);
+          }
+        };
+      }}>
+      <input name="id" type="hidden" value={renameDialog.id} />
+      <Label for="renameLabel" class="mb-2">カードの名前</Label>
+      <Input
+        id="renameLabel"
+        name="label"
+        placeholder="e.g. スマホのSuica"
+        bind:value={renameDialog.label}
+      />
+    </form>
+    <Dialog.Footer class="sm:justify-end">
+      <Dialog.Close class={buttonVariants({ variant: "secondary" })}
+        >キャンセル</Dialog.Close
+      >
+      <Button type="submit" form="renameForm" disabled={!renameDialog.label || renameDialog.label == renameDialog.oldLabel}>変更</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>
+
+<Dialog.Root bind:open={deleteDialog.open}>
+  <Dialog.Content onOpenAutoFocus={(e) => e.preventDefault()}>
+   <Dialog.Header>
+      <Dialog.Title class="text-xl font-bold">カードを削除</Dialog.Title>
+      <Dialog.Description>
+        <p>カード名: {deleteDialog.label}</p>
+        <p>IDm: {deleteDialog.idm}</p>
+      </Dialog.Description>
+    </Dialog.Header>
+    <form
+      id="deleteForm"
+      action="?/delete" 
+      method="POST" 
+      use:enhance={({ formElement, formData, action, cancel }) => {
+        return async ({ result, update }) => {
+          if (result.type == 'success') {
+            deleteDialog.open = false;
+            update();
+          } else if (result.type == 'failure') {
+            console.error(result.data);
+            alert('エラーが発生しました:\n' + result.data);
+          }
+        };
+      }}>
+      <input name="id" type="hidden" value={deleteDialog.id} />
+      本当に削除しますか？
+    </form>
+    <Dialog.Footer class="sm:justify-end">
+      <Dialog.Close class={buttonVariants({ variant: "secondary" })}
+        >キャンセル</Dialog.Close
+      >
+      <Button type="submit" form="deleteForm" variant="destructive">削除</Button>
+    </Dialog.Footer>
+  </Dialog.Content>
+</Dialog.Root>
