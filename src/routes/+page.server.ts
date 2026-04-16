@@ -38,7 +38,7 @@ export const actions = {
 
     const hash = createHash('sha256');
     hash.update(idm_raw);
-    const idm_hash = hash.digest('hex');
+    const idm_hash = hash.digest('hex').slice(0, 16);
 
     const user_id = import.meta.env.DEV ? 'dummyid' : locals.user?.sub || null;
 
