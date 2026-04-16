@@ -21,7 +21,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   if (user) {
     const db = getDB();
-    db.query('INSERT INTO users (discord_id, username, active) VALUES (?1, ?2, -1) ON CONFLICT(discord_id) DO UPDATE SET username = ?2').run(user.sub, user.preferred_username);
+    const dbUser = db.query('SELECT * FROM users WHERE discord_id == ?').get(user.sub);
+    if (dbUser) {
+      if (user.preferred_username != (dbUser as any).username) {
+        db.query('UPDATE users SET username = ?1 WHERE discord_id == ?2').run(user.preferred_username, user.sub);
+      }
+    } else {
+      db.query('INSERT INTO users (discord_id, username, active) VALUES (?1, ?2, -1)').run(user.sub, user.preferred_username);
+    }
     cards = db.query('SELECT * FROM cards WHERE user_id = ?').all(user.sub);
   }
 
