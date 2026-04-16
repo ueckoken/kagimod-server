@@ -4,6 +4,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./db:/app/db
+    environment:
+      TZ: Asia/Tokyo
 
   oauth2-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:latest-amd64
