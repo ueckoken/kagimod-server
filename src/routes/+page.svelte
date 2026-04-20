@@ -254,7 +254,7 @@
   <Dialog.Content onOpenAutoFocus={(e) => e.preventDefault()}>
    <Dialog.Header>
       <Dialog.Title class="text-xl font-bold">カードを削除</Dialog.Title>
-      <Dialog.Description>
+      <Dialog.Description class="break-all">
         <p>カード名: {deleteDialog.label}</p>
         <p>IDm: {deleteDialog.idm}</p>
       </Dialog.Description>
