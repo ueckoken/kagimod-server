@@ -79,7 +79,7 @@
           <Avatar.Fallback>{data.user?.preferred_username.slice(0, 1).toUpperCase()}</Avatar.Fallback>
         </Avatar.Root>
       </Popover.Trigger>
-      <Popover.Content class="mx-4 my-2 w-fit p-3">
+      <Popover.Content class="mx-4 my-2 w-fit p-3 sm:hidden">
         <div>
           <p class="font-bold">{data.user?.name}</p>
           <p class="text-sm">@{data.user?.preferred_username}</p>
