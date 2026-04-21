@@ -117,7 +117,7 @@
   {#if data.cards.length}
     <Table.Root>
       <Table.Header>
-        <Table.Row>
+        <Table.Row class="border-foreground/50">
           <Table.Head>カード名</Table.Head>
           <Table.Head>IDm</Table.Head>
           <Table.Head>登録日</Table.Head>
@@ -131,11 +131,11 @@
             <Table.Cell>{card.idm_raw}</Table.Cell>
             <Table.Cell>{format(card.created_at, 'yyyy-MM-dd')}</Table.Cell>
             <Table.Cell class="sticky right-0">
-              <div class="rounded-md p-1 bg-background">
+              <div class="rounded-md p-1 bg-background flex gap-1">
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger>
                     {#snippet child({ props })}
-                      <Button {...props} variant="secondary" class="sm:hidden" aria-label="操作"><EllipsisIcon /></Button>
+                      <Button {...props} variant="secondary" class="block sm:hidden" aria-label="操作"><EllipsisIcon /></Button>
                     {/snippet}
                   </DropdownMenu.Trigger>
                   <DropdownMenu.Content class="mx-4 my-2 w-fit" align="start">
@@ -150,12 +150,12 @@
                 <Button
                   variant="secondary"
                   onclick={() => openRenameDialog(card.id, card.label, card.idm_raw)}
-                  class="hidden sm:inline"
+                  class="hidden sm:block"
                   aria-label="名前を変更"><PencilIcon /></Button>
                 <Button
                   variant="destructive"
                   onclick={() => openDeleteDialog(card.id, card.label, card.idm_raw)}
-                  class="hidden sm:inline"
+                  class="hidden sm:block"
                   aria-label="削除"><Trash2Icon /></Button>
               </div>
             </Table.Cell>
