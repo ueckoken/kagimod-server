@@ -71,7 +71,7 @@
   });
 </script>
 
-<div class="p-4 flex items-center justify-between">
+<header class="p-4 flex items-center justify-between sticky top-0 bg-background z-10">
   <div class="flex items-center gap-3 mx-2">
     <h1 class="text-xl font-bold">Kagimod</h1>
     <Button onclick={toggleMode} variant="outline" size="icon">
@@ -104,7 +104,7 @@
       <p class="text-sm/5">@{data.user?.preferred_username}</p>
     </div>
   </div>
-</div>
+</header>
 
 <main class="container p-6 mx-auto">
   <div class="flex items-center justify-between mb-4">
