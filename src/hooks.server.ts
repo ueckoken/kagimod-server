@@ -15,6 +15,12 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.user = payload;
   }
 
+  const param = event.url.pathname.slice(1);
+  if (RegExp(/^[a-fA-F0-9]{16}$/).test(param)) {
+    event.url.pathname = '/';
+    return await event.fetch(event.url.toString());
+  }
+
   return await resolve(event);
 };
 

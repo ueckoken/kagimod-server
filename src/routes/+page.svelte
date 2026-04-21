@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { page } from '$app/state';
+  import { goto } from '$app/navigation';
   import { enhance } from '$app/forms';
   import type { PageProps } from './$types';
   import SunIcon from '@lucide/svelte/icons/sun';
@@ -56,6 +59,16 @@
     deleteDialog.idm = idm;
     deleteDialog.open = true;
   }
+
+  onMount(() => {
+    const param = page.url.pathname.slice(1);
+    if (param) {
+      page.url.pathname = '/';
+      goto(page.url, { replaceState: true });
+      newDialog.idm = param.toLowerCase();
+      newDialog.open = true;
+    }
+  });
 </script>
 
 <div class="p-4 flex items-center justify-between">
