@@ -3,6 +3,7 @@ import {
 } from 'discord.js';
 import { DISCORD_TOKEN, API_ROLES } from '$env/static/private';
 import { getDB } from '$lib/server/database';
+import { updateEvent } from '$lib/server/sse';
 
 let guildId: string = '';
 let roles: string[] = [];
@@ -33,14 +34,19 @@ async function fullSync() {
   const users = db.query('SELECT discord_id, active FROM users').all();
   const guild = await client.guilds.fetch(guildId);
   const members = await guild.members.fetch();
+  let update = false;
   for (const user of users as { discord_id: string, active: number }[]) {
     const member = members.get(user.discord_id);
     if (member) {
       const active = member.roles.cache.hasAny(...roles) ? 1 : 0;
       if (user.active != active) {
         db.query('UPDATE users SET username = ?1, active = ?2 WHERE discord_id == ?3').run(member.user.username, active, member.id);
+        update = true;
       }
     }
+  }
+  if (update) {
+    updateEvent();
   }
 }
 
@@ -76,6 +82,7 @@ export async function login() {
     const newActive = newMember.roles.cache.hasAny(...roles) ? 1 : 0;
     if (oldActive != newActive) {
       getDB().query('UPDATE users SET username = ?1, active = ?2 WHERE discord_id == ?3').run(newMember.user.username, newActive, newMember.id);
+      updateEvent();
     }
   });
 

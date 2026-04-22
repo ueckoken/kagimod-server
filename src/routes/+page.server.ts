@@ -3,6 +3,7 @@ import type { PageServerLoad, Actions } from './$types';
 import { createHash } from 'crypto';
 import { getDB } from '$lib/server/database';
 import { addUser } from '$lib/server/discord';
+import { addEvent, deleteEvent } from '$lib/server/sse';
 
 export const load: PageServerLoad = async ({ locals }) => {
   let user;
@@ -55,6 +56,8 @@ export const actions = {
       return fail(400, String(e));
     }
 
+    addEvent(idm_hash);
+
     return { success: true };
   },
   rename: async ({ request, locals }) => {
@@ -81,11 +84,16 @@ export const actions = {
     const user_id = import.meta.env.DEV ? 'dummyid' : locals.user?.sub || null;
 
     const db = getDB();
+    const card = db.query('SELECT idm_hash FROM cards WHERE id == ?1 AND user_id == ?2').get(id, user_id) as { idm_hash: string };
     try {
       db.query('DELETE from cards WHERE id == ?1 AND user_id == ?2').run(id, user_id);
     } catch (e) {
       console.error(e);
       return fail(400, String(e));
+    }
+
+    if (card) {
+      deleteEvent(card.idm_hash);
     }
 
     return { success: true };

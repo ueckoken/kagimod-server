@@ -1,9 +1,11 @@
 import { getDB } from '$lib/server/database';
 import { login } from '$lib/server/discord';
+import { startSSEServer } from '$lib/server/sse';
 import type { ServerInit, Handle } from '@sveltejs/kit';
 
 export const init: ServerInit = async () => {
-  login();
+  await login();
+  startSSEServer();
 };
 
 export const handle: Handle = async ({ event, resolve }) => {
