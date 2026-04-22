@@ -19,7 +19,6 @@ export function startSSEServer() {
             controller.enqueue(`data: ${idmHashList}\n\n`);
           },
           cancel() {
-            console.log('sse canceled');
             clients.delete(controller);
           },
         });
