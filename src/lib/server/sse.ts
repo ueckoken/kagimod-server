@@ -1,4 +1,5 @@
 import { getDB } from '$lib/server/database';
+import { sendLog } from '$lib/server/discord';
 
 const clients: Set<ReadableStreamDefaultController> = new Set();
 
@@ -29,6 +30,18 @@ export function startSSEServer() {
             'Cache-Control': 'no-cache',
           },
         });
+      },
+      '/open': {
+        async POST(req) {
+          await sendLog(true, await req.text());
+          return Response.json({ success: true });
+        },
+      },
+      '/close': {
+        async POST(req) {
+          await sendLog(false, await req.text());
+          return Response.json({ success: true });
+        },
       },
     },
   });

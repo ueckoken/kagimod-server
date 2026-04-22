@@ -1,7 +1,7 @@
 import { 
-  Client, Events, GatewayIntentBits,
+  Client, Events, GatewayIntentBits, EmbedBuilder
 } from 'discord.js';
-import { DISCORD_TOKEN, API_ROLES } from '$env/static/private';
+import { DISCORD_TOKEN, DISCORD_CHANNEL, API_ROLES } from '$env/static/private';
 import { getDB } from '$lib/server/database';
 import { updateEvent } from '$lib/server/sse';
 
@@ -54,6 +54,29 @@ async function fullSync() {
   }
   if (update) {
     updateEvent();
+  }
+}
+
+export async function sendLog(open: boolean, idm_hash: string) {
+  console.log(open ? 'open' : 'close', idm_hash);
+  let keyName = '';
+  if (idm_hash) {
+    const card = getDB().query('SELECT users.username, cards.label FROM cards INNER JOIN users ON cards.user_id = users.discord_id WHERE users.active == 1 AND cards.idm_hash == ?').get(idm_hash) as { username: string, label: string };
+    if (card) {
+      keyName = `**${card.username}** の **${card.label}**`;
+    } else {
+      keyName = '***Unknown***';
+    }
+  } else {
+    keyName = '**物理鍵**';
+  }
+  const embed = new EmbedBuilder()
+    .setDescription(`**工研部室** は ${keyName} で${open ? '開錠' : '施錠'}された`)
+    .setTimestamp()
+    .setColor(open ? '#00ff00' : '#ff0000'); 
+  const channel = await client.channels.fetch(DISCORD_CHANNEL);
+  if (channel?.isSendable()) {
+    await channel.send({ embeds: [embed] });
   }
 }
 
