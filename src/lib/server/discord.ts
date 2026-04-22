@@ -31,16 +31,23 @@ async function fetchRoles() {
 async function fullSync() {
   await fetchRoles();
   const db = getDB();
-  const users = db.query('SELECT discord_id, active FROM users').all();
+  const users = db.query('SELECT discord_id, active FROM users').all() as { discord_id: string, active: number }[];
+  const cardsUsers = db.query('SELECT user_id FROM cards').all() as { user_id: string }[];
   const guild = await client.guilds.fetch(guildId);
   const members = await guild.members.fetch();
   let update = false;
-  for (const user of users as { discord_id: string, active: number }[]) {
-    const member = members.get(user.discord_id);
+  for (const cardsUser of cardsUsers) {
+    const member = members.get(cardsUser.user_id);
     if (member) {
       const active = member.roles.cache.hasAny(...roles) ? 1 : 0;
-      if (user.active != active) {
-        db.query('UPDATE users SET username = ?1, active = ?2 WHERE discord_id == ?3').run(member.user.username, active, member.id);
+      const user = users.filter(u => u.discord_id == member.id)[0];
+      if (user) {
+        if (user.active != active) {
+          db.query('UPDATE users SET username = ?1, active = ?2 WHERE discord_id == ?3').run(member.user.username, active, member.id);
+          update = true;
+        }
+      } else {
+        db.query('INSERT INTO users (discord_id, username, active) VALUES (?1, ?2, ?3)').run(member.id, member.user.username, active);
         update = true;
       }
     }
