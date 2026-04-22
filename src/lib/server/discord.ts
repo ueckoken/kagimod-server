@@ -59,19 +59,24 @@ async function fullSync() {
 
 export async function sendLog(open: boolean, idm_hash: string) {
   console.log(open ? 'open' : 'close', idm_hash);
-  let keyName = '';
+  const getDescription = (s: string) => `**工研部室** は ${s} で${open ? '開錠' : '施錠'}された`;
+  let description = '';
   if (idm_hash) {
     const card = getDB().query('SELECT users.username, cards.label FROM cards INNER JOIN users ON cards.user_id = users.discord_id WHERE users.active == 1 AND cards.idm_hash == ?').get(idm_hash) as { username: string, label: string };
     if (card) {
-      keyName = `**${card.username}** の **${card.label}**`;
+      description = getDescription(`**${card.username}** の **${card.label}**`);
+      const overflow = description.length - 4096;
+      if (overflow > 0) {
+        description = getDescription(`**${card.username}** の **${card.label.slice(0, -overflow - 1)}…**`);
+      }
     } else {
-      keyName = '***Unknown***';
+      description = getDescription('***Unknown***');
     }
   } else {
-    keyName = '**物理鍵**';
+    description = getDescription('**物理鍵**');
   }
   const embed = new EmbedBuilder()
-    .setDescription(`**工研部室** は ${keyName} で${open ? '開錠' : '施錠'}された`)
+    .setDescription(description)
     .setTimestamp()
     .setColor(open ? '#00ff00' : '#ff0000'); 
   const channel = await client.channels.fetch(DISCORD_CHANNEL);
