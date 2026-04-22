@@ -2,6 +2,7 @@ import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { createHash } from 'crypto';
 import { getDB } from '$lib/server/database';
+import { addUser } from '$lib/server/discord';
 
 export const load: PageServerLoad = async ({ locals }) => {
   let user;
@@ -21,14 +22,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   if (user) {
     const db = getDB();
-    const dbUser = db.query('SELECT * FROM users WHERE discord_id == ?').get(user.sub);
-    if (dbUser) {
-      if (user.preferred_username != (dbUser as any).username) {
-        db.query('UPDATE users SET username = ?1 WHERE discord_id == ?2').run(user.preferred_username, user.sub);
-      }
-    } else {
-      db.query('INSERT INTO users (discord_id, username, active) VALUES (?1, ?2, -1)').run(user.sub, user.preferred_username);
-    }
     cards = db.query('SELECT * FROM cards WHERE user_id = ?').all(user.sub);
   }
 
@@ -49,6 +42,10 @@ export const actions = {
     const idm_hash = hash.digest('hex').slice(0, 16);
 
     const user_id = import.meta.env.DEV ? 'dummyid' : locals.user?.sub || null;
+
+    if (user_id) {
+      await addUser(user_id);
+    }
 
     const db = getDB();
     try {
