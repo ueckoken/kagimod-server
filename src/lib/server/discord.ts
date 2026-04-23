@@ -59,7 +59,7 @@ async function fullSync() {
 
 export async function sendLog(open: boolean, idm_hash: string) {
   console.log(open ? 'open' : 'close', idm_hash);
-  const getDescription = (s: string) => `**工研部室** は ${s} で${open ? '開錠' : '施錠'}された`;
+  const getDescription = (s: string) => `**工研部室** は ${s} で${open ? '解錠' : '施錠'}された`;
   let description = '';
   if (idm_hash) {
     const card = getDB().query('SELECT users.username, cards.label FROM cards INNER JOIN users ON cards.user_id = users.discord_id WHERE users.active == 1 AND cards.idm_hash == ?').get(idm_hash) as { username: string, label: string };
