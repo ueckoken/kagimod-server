@@ -37,6 +37,14 @@ export function getDB() {
         UPDATE cards SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
       END;
     `);
+    db.run(`CREATE TRIGGER IF NOT EXISTS cards_limit BEFORE INSERT ON cards FOR EACH ROW
+      BEGIN
+        SELECT CASE
+          WHEN (SELECT COUNT(*) FROM cards WHERE user_id = NEW.user_id) >= 10
+          THEN RAISE(ABORT, 'Users can only register up to 10 cards.')
+        END;
+      END;
+    `);
   }
   
   return db;

@@ -110,9 +110,9 @@
   <div class="flex items-center justify-between mb-4">
     <div class="flex gap-2">
       <h2 class="font-bold">ICカード一覧</h2>
-      <p>{data.cards.length}件</p>
+      <p>{data.cards.length} / 10 件</p>
     </div>
-    <Button onclick={openNewDialog} class="flex items-center"><PlusIcon />カードを追加</Button>
+    <Button onclick={openNewDialog} class="flex items-center" disabled={data.cards.length >= 10}><PlusIcon />カードを追加</Button>
   </div>
   {#if data.cards.length}
     <Table.Root>
