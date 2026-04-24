@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ locals }) => {
     cards = db.query('SELECT * FROM cards WHERE user_id = ?').all(user.sub);
   }
 
-  return { user, cards };
+  return { cards };
 };
 
 export const actions = {
