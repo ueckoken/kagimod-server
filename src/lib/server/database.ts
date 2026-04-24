@@ -19,7 +19,7 @@ export function getDB() {
     )`);
     db.run(`CREATE TRIGGER IF NOT EXISTS users_updated_at AFTER UPDATE ON users
       BEGIN
-        UPDATE users SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
+        UPDATE users SET updated_at = DATETIME('now', 'localtime') WHERE rowid = NEW.rowid;
       END;
     `);
 
@@ -34,7 +34,7 @@ export function getDB() {
     )`);
     db.run(`CREATE TRIGGER IF NOT EXISTS cards_updated_at AFTER UPDATE ON cards
       BEGIN
-        UPDATE cards SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
+        UPDATE cards SET updated_at = DATETIME('now', 'localtime') WHERE rowid = NEW.rowid;
       END;
     `);
     db.run(`CREATE TRIGGER IF NOT EXISTS cards_limit BEFORE INSERT ON cards FOR EACH ROW

@@ -69,7 +69,7 @@ export const actions = {
 
     const db = getDB();
     try {
-      db.query('UPDATE cards SET label = ?1 WHERE id == ?2 AND user_id == ?3').run(label, id, user_id);
+      db.query('UPDATE cards SET label = ?1 WHERE id = ?2 AND user_id = ?3').run(label, id, user_id);
     } catch (e) {
       console.error(e);
       return fail(400, String(e));
@@ -84,9 +84,9 @@ export const actions = {
     const user_id = import.meta.env.DEV ? 'dummyid' : locals.user?.sub || null;
 
     const db = getDB();
-    const card = db.query('SELECT idm_hash FROM cards WHERE id == ?1 AND user_id == ?2').get(id, user_id) as { idm_hash: string };
+    const card = db.query('SELECT idm_hash FROM cards WHERE id = ?1 AND user_id = ?2').get(id, user_id) as { idm_hash: string };
     try {
-      db.query('DELETE from cards WHERE id == ?1 AND user_id == ?2').run(id, user_id);
+      db.query('DELETE from cards WHERE id = ?1 AND user_id = ?2').run(id, user_id);
     } catch (e) {
       console.error(e);
       return fail(400, String(e));

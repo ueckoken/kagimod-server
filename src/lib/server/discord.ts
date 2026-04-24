@@ -43,7 +43,7 @@ async function fullSync() {
       const user = users.filter(u => u.discord_id == member.id)[0];
       if (user) {
         if (user.active != active) {
-          db.query('UPDATE users SET username = ?1, active = ?2 WHERE discord_id == ?3').run(member.user.username, active, member.id);
+          db.query('UPDATE users SET username = ?1, active = ?2 WHERE discord_id = ?3').run(member.user.username, active, member.id);
           update = true;
         }
       } else {
@@ -62,7 +62,7 @@ export async function sendLog(open: boolean, idm_hash: string) {
   const getDescription = (s: string) => `**工研部室** は ${s} で${open ? '解錠' : '施錠'}された`;
   let description = '';
   if (idm_hash) {
-    const card = getDB().query('SELECT users.username, cards.label FROM cards INNER JOIN users ON cards.user_id = users.discord_id WHERE users.active == 1 AND cards.idm_hash == ?').get(idm_hash) as { username: string, label: string };
+    const card = getDB().query('SELECT users.username, cards.label FROM cards INNER JOIN users ON cards.user_id = users.discord_id WHERE users.active = 1 AND cards.idm_hash = ?').get(idm_hash) as { username: string, label: string };
     if (card) {
       description = getDescription(`**${card.username}** の **${card.label}**`);
       const overflow = description.length - 4096;
@@ -88,7 +88,7 @@ export async function sendLog(open: boolean, idm_hash: string) {
 export async function addUser(userId: string) {
   await fetchRoles();
   const db = getDB();
-  const dbUser = db.query('SELECT * FROM users WHERE discord_id == ?').get(userId);
+  const dbUser = db.query('SELECT * FROM users WHERE discord_id = ?').get(userId);
   if (dbUser) return;
   const guild = await client.guilds.fetch(guildId);
   const member = await guild.members.fetch(userId);
@@ -116,7 +116,7 @@ export async function login() {
     const oldActive = oldMember.roles.cache.hasAny(...roles) ? 1 : 0;
     const newActive = newMember.roles.cache.hasAny(...roles) ? 1 : 0;
     if (oldActive != newActive) {
-      getDB().query('UPDATE users SET username = ?1, active = ?2 WHERE discord_id == ?3').run(newMember.user.username, newActive, newMember.id);
+      getDB().query('UPDATE users SET username = ?1, active = ?2 WHERE discord_id = ?3').run(newMember.user.username, newActive, newMember.id);
       updateEvent();
     }
   });
