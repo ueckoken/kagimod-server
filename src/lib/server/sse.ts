@@ -1,10 +1,13 @@
+import { type Server } from 'bun';
 import { getDB } from '$lib/server/database';
 import { sendLog } from '$lib/server/discord';
 
+let server: Server<undefined> | null = null;
 const clients: Set<ReadableStreamDefaultController> = new Set();
 
 export function startSSEServer() {
-  Bun.serve({
+  if (server) return;
+  server = Bun.serve({
     port: 3001,
     routes: {
       '/events': (req, server) => {
