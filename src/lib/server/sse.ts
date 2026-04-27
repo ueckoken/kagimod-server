@@ -61,7 +61,7 @@ export function addEvent(idm_hash: string) {
   const card = getDB().query('SELECT cards.idm_hash FROM cards INNER JOIN users ON cards.user_id = users.discord_id WHERE users.active = 1 AND cards.idm_hash = ?').get(idm_hash) as { idm_hash: string };
   if (card) {
     for (const controller of clients) {
-      controller.enqueue(`event: add\ndata: ${card.idm_hash}\n\n`);
+      controller.enqueue(`event: insert\ndata: ${card.idm_hash}\n\n`);
     }
   }
 }
