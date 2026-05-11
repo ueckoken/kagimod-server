@@ -39,6 +39,7 @@ function broadcast(data: Uint8Array) {
 }
 
 function recvData(socket: Socket<SocketData>, data: Uint8Array) {
+  socket.data.recvLen = 0;
   let i = 0;
   while (i < data.byteLength) {
     const d = data.subarray(i);
@@ -100,7 +101,7 @@ export function startTCPServer() {
       data(socket, buff) {
         const { recvBuf, recvLen } = socket.data;
         const data = new Uint8Array(recvLen + buff.byteLength);
-        data.set(recvBuf);
+        data.set(recvBuf.subarray(0, recvLen));
         data.subarray(recvLen).set(buff);
         recvData(socket, data);
       },
