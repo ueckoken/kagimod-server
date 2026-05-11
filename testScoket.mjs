@@ -1,17 +1,15 @@
 import { parseArgs } from 'util';
 
 const { values } = parseArgs({
-  args: Bun.argv,
-  oprions: {
-    host: { type: 'string', short: 'h' },
-    port: { type: 'number', short: 'p' },
+  options: {
+    host: { type: 'string', short: 'h', default: 'localhost' },
+    port: { type: 'string', short: 'p', default: '8031' },
   },
-  allowPositionals: true,
 });
 
 await Bun.connect({
-  hostname: values.host || 'localhost',
-  port: values.port || 8031,
+  hostname: values.host,
+  port: +values.port,
   socket: {
     data(_s, d) {
       console.log(d);
