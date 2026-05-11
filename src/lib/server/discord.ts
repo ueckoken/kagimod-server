@@ -3,7 +3,7 @@ import {
 } from 'discord.js';
 import { DISCORD_TOKEN, DISCORD_CHANNEL, API_ROLES } from '$env/static/private';
 import { getDB } from '$lib/server/database';
-import { updateEvent } from '$lib/server/sse';
+import { update } from '$lib/server/socket';
 
 let guildId: string = '';
 let roles: string[] = [];
@@ -35,7 +35,7 @@ async function fullSync() {
   const cardsUsers = db.query('SELECT user_id FROM cards').all() as { user_id: string }[];
   const guild = await client.guilds.fetch(guildId);
   const members = await guild.members.fetch();
-  let update = false;
+  let updateFlg = false;
   for (const cardsUser of cardsUsers) {
     const member = members.get(cardsUser.user_id);
     if (member) {
@@ -44,16 +44,16 @@ async function fullSync() {
       if (user) {
         if (user.active != active) {
           db.query('UPDATE users SET username = ?1, active = ?2 WHERE discord_id = ?3').run(member.user.username, active, member.id);
-          update = true;
+          updateFlg = true;
         }
       } else {
         db.query('INSERT INTO users (discord_id, username, active) VALUES (?1, ?2, ?3)').run(member.id, member.user.username, active);
-        update = true;
+        updateFlg = true;
       }
     }
   }
-  if (update) {
-    updateEvent();
+  if (updateFlg) {
+    update();
   }
 }
 

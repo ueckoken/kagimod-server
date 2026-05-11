@@ -3,7 +3,7 @@ import type { PageServerLoad, Actions } from './$types';
 import { createHash } from 'crypto';
 import { getDB } from '$lib/server/database';
 import { addUser } from '$lib/server/discord';
-import { addEvent, deleteEvent } from '$lib/server/sse';
+import { insert, delete_ } from '$lib/server/socket';
 
 export const load: PageServerLoad = async ({ locals }) => {
   let user;
@@ -56,7 +56,7 @@ export const actions = {
       return fail(400, String(e));
     }
 
-    addEvent(idm_hash);
+    insert(idm_hash);
 
     return { success: true };
   },
@@ -93,7 +93,7 @@ export const actions = {
     }
 
     if (card) {
-      deleteEvent(card.idm_hash);
+      delete_(card.idm_hash);
     }
 
     return { success: true };
