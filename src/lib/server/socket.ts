@@ -56,9 +56,9 @@ function recvData(socket: Socket<SocketData>, data: Uint8Array) {
     } else if (d[0] === 0x03 || d[0] === 0x04) {
       if (d.byteLength >= 9) {
         if (d[0] === 0x03) {
-          sendLog(true, d.subarray(0, 8).toHex());
+          sendLog(true, d.subarray(1, 9).toHex());
         } else {
-          sendLog(false, d.subarray(0, 8).toHex());
+          sendLog(false, d.subarray(1, 9).toHex());
         }
         i += 9;
       } else {
